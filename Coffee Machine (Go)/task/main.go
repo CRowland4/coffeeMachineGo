@@ -1,51 +1,102 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
-	// Define resource constants
-	mlWaterPerCup := 200
-	mlMilkPerCup := 50
-	gramsCoffeePerCup := 15
+	fmt.Println()  // So the start of the output is easier to distinguish from the file paths and such in the terminal
 
-	// Gather the amount of resources the coffee machine has
-	var waterSupply int
-	var milkSupply int
-	var coffeeGramSupply int
+	dollarsInMachine := 550
+	waterSupply := 400
+	milkSupply := 540
+	coffeeBeanSupply := 120
+	cupsSupply := 9
+	printSupplies(dollarsInMachine, waterSupply, milkSupply, coffeeBeanSupply, cupsSupply)
 
-	fmt.Println("Write how many ml of water the coffee machine has:")
-	fmt.Scan(&waterSupply)
-
-	fmt.Println("Write how many ml of milk the coffee machine has:")
-	fmt.Scan(&milkSupply)
-
-	fmt.Println("Write how many grams of coffee beans the coffee machine has:")
-	fmt.Scan(&coffeeGramSupply)
-
-	/* Figure out how many cups of coffee the machine can make.
-	This will be determined by the resource that can make the fewest cups.
-	*/
-	cupsSupply := waterSupply / mlWaterPerCup
-
-	if milkSupply/mlMilkPerCup < cupsSupply {
-		cupsSupply = milkSupply / mlMilkPerCup
+	switch action := getUserAction(); action {
+	case "buy":
+		order := getUserOrder()
+		fmt.Println()
+		printRemainingSupplies(order, dollarsInMachine, waterSupply, milkSupply, coffeeBeanSupply, cupsSupply)
+	case "fill":
+		waterSupply += getFillAmount("ml of water")
+		milkSupply += getFillAmount("ml of milk")
+		coffeeBeanSupply += getFillAmount("grams of coffee beans")
+		cupsSupply += getFillAmount("disposable cups")
+		fmt.Println()
+		printSupplies(dollarsInMachine, waterSupply, milkSupply, coffeeBeanSupply, cupsSupply)
+	case "take":
+		fmt.Printf("I gave you $%d\n", dollarsInMachine)
+		fmt.Println()
+		dollarsInMachine = 0
+		printSupplies(dollarsInMachine, waterSupply, milkSupply, coffeeBeanSupply, cupsSupply)
 	}
+}
 
-	if coffeeGramSupply/gramsCoffeePerCup < cupsSupply {
-		cupsSupply = coffeeGramSupply / gramsCoffeePerCup
+
+func printSupplies(dollarsInMachine int, waterSupply int, milkSupply int, coffeeBeanSupply int, cupsSupply int) {
+	fmt.Println("The coffee machine has:")
+	fmt.Printf("%d ml of water\n", waterSupply)
+	fmt.Printf("%d ml of milk\n", milkSupply)
+	fmt.Printf("%d g of coffee beans\n", coffeeBeanSupply)
+	fmt.Printf("%d disposable cups\n", cupsSupply)
+	fmt.Printf("$%d of money\n\n", dollarsInMachine)
+
+	return
+}
+
+
+func printRemainingSupplies(order string, dollarsInMachine, waterSupply, milkSupply, coffeeBeanSupply, cupsSupply int) {
+	switch order {
+	case "1":
+		waterSupply -= 250
+		coffeeBeanSupply -= 16
+		dollarsInMachine += 4
+	case "2":
+		waterSupply -= 350
+		milkSupply -= 75
+		coffeeBeanSupply -= 20
+		dollarsInMachine += 7
+	case "3":
+		waterSupply -= 200
+		milkSupply -= 100
+		coffeeBeanSupply -= 12
+		dollarsInMachine += 6
 	}
+	// Every order requires one disposable cup
+	cupsSupply -= 1
 
-	// Get the requested amount of cups of coffee
-	var cupsOrdered int
-	fmt.Println("Write how many cups of coffee you will need:")
-	fmt.Scan(&cupsOrdered)
+	fmt.Println("The coffee machine has:")
+	fmt.Printf("%d ml of water\n", waterSupply)
+	fmt.Printf("%d ml of milk\n", milkSupply)
+	fmt.Printf("%d g of coffee beans\n", coffeeBeanSupply)
+	fmt.Printf("%d disposable cups\n", cupsSupply)
+	fmt.Printf("$%d of money\n\n", dollarsInMachine)
 
-	// Respond to the user
-	if cupsOrdered < cupsSupply {
-		fmt.Printf("Yes, I can make that amount of coffee (and even %d more than that)\n", cupsSupply-cupsOrdered)
-	} else if cupsOrdered == cupsSupply {
-		fmt.Println("Yes, I can make that amount of coffee")
-	} else {
-		fmt.Printf("No, I can make only %d cups of coffee\n", cupsSupply)
-	}
+	return
+}
+
+
+func getUserAction() (action string) {
+	fmt.Println("Write action (buy, fill, take):")
+	fmt.Scan(&action)
+
+	return action
+}
+
+
+func getUserOrder() (order string) {
+	fmt.Println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino")
+	fmt.Scan(&order)
+
+	return order
+}
+
+
+func getFillAmount(item string) (amount int) {
+	fmt.Printf("Write how many %s you want to add:\n", item)
+	fmt.Scanf("%d", &amount)
+
+	return amount
 }
